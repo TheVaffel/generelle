@@ -12,12 +12,14 @@ int main() {
     const int width = 800;
     const int height = 600;
 
-    gn::GE ge1 = gn::makeSphere(falg::Vec3(0.0f, -1.0f, 0.0f), 1.5f);
+    /* gn::GE ge1 = gn::makeSphere(falg::Vec3(0.0f, -1.0f, 0.0f), 1.5f);
     gn::GE ge2 = gn::makeSphere(falg::Vec3(0.0f, 1.0f, 0.0f), 1.5f);
 
-    gn::GE sum = ge1.add(ge2);
+    gn::GE sum = ge1.add(ge2); */
 
-    unsigned char* ch = gn::Visualization::visualize(sum, width, height);
+    gn::GE box = gn::makeBox(falg::Vec3(2.0f, 1.0f, 1.0f));
+
+    unsigned char* ch = gn::Visualization::visualize(box, width, height);
 
     std::string output_file_name = "out2.png";
     
