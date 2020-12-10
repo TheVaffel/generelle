@@ -39,7 +39,7 @@ Because of the flexibility of SDFs, we can add two spheres "smoothly", allowing 
 
 Q: _I like cubes. Y no cube_
 
-A: Patience, you cubicle.
+A: Patience, you cubicle. (Update - added a box. Be happy)
 
 <br/>
 
