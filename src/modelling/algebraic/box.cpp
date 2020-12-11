@@ -20,7 +20,7 @@ namespace generelle {
 
         float di = std::max(std::max(idx, idy), idz);
 
-        return dd < 1e-6 ? di : dd;
+        return dd < 0 ? di : dd;
     }
 
     GE makeBox(const falg::Vec3& pos) {
