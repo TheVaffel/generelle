@@ -37,19 +37,25 @@ int main() {
 
     gn::GE sum = ge1.add(ge2); */
 
-    gn::GE box = gn::makeBox(falg::Vec3(2.0f, 1.0f, 1.0f));
-    gn::GE sphere = gn::makeSphere(0.5f).translate(falg::Vec3(0.0f, 1.5f, 0.0f));
+    // gn::GE box = gn::makeBox(falg::Vec3(2.0f, 1.0f, 1.0f));
+    // gn::GE sphere = gn::makeSphere(0.5f).translate(falg::Vec3(0.0f, 1.5f, 0.0f));
 
-    gn::GE sum = box.smoothAdd(sphere, 0.5f).pad(1.0f).subtract(gn::makeSphere(2.f).translate(falg::Vec3(0.5f, 1.5f, 0.0f)));
+    // gn::GE sum = box.smoothAdd(sphere, 0.5f).pad(1.0f).subtract(gn::makeSphere(2.f).translate(falg::Vec3(0.5f, 1.5f, 0.0f)));
 
     // gn::GE tot = sum.scale(0.6f);
 
-    // gn::GE tot = gn::makeSphere(0.5f).scale(0.9f).translate(falg::Vec3(0.0f, 0.0f, 0.0f));
-    // gn::GE tot2 = gn::makeSphere(0.5f).scale(0.9f).translate(falg::Vec3(0.0f, 1.0f, 2.0f));
+    gn::GE sphere = gn::makeSphere(0.5f).scale(0.9f).translate(falg::Vec3(0.0f, 0.0f, 0.0f));
+    gn::GE sphere2 = gn::makeSphere(0.5f).scale(0.9f).translate(falg::Vec3(0.0f, 1.0f, 2.0f));
 
-    gn::GE tot = gn::makeBox(falg::Vec3(1.0f, 1.0f, 1.0f)).scale(1.0f);
-    gn::GE tot2 = gn::makeBox(falg::Vec3(1.0f, 1.0f, 1.0f)).scale(0.8f);
+    gn::GE box = gn::makeBox(falg::Vec3(1.0f, 1.0f, 1.0f)).scale(0.2f).translate(falg::Vec3(-1.0f, 0.0f, 0.0f));
+    gn::GE box2 = gn::makeBox(falg::Vec3(1.0f, 1.0f, 1.0f)).scale(0.8f);
 
-    drawModel(tot, width, height, "out.png");
-    drawModel(tot2, width, height, "out2.png");
+    gn::GE cylinder = gn::makeCylinder(1.0f, 2.0f).translate(falg::Vec3(2.f, 2.f, 0.0f));
+    gn::GE cylinder2 = gn::makeCylinder(0.5f, 3.0f);
+
+    gn::GE sum = sphere.add(box).add(cylinder);
+    gn::GE sum2 = sphere2.add(box2).add(cylinder2);
+
+    drawModel(sum, width, height, "out.png");
+    drawModel(sum2, width, height, "out2.png");
 }
