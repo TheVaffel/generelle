@@ -1,17 +1,17 @@
 #include "sphere.hpp"
 
 namespace generelle {
-    Sphere::Sphere(const falg::Vec3& center, float radius) : radius(radius), center(center) { }
+    Sphere::Sphere(float radius) : radius(radius) { }
 
     float Sphere::signedDist(const falg::Vec3& pos) const {
-        return (pos - this->center).norm() - this->radius;
+        return pos.norm() - this->radius;
     }
 
     falg::Vec3 Sphere::normal(const falg::Vec3& pos) const {
-        return (pos - this->center).normalized();
+        return pos.normalized();
     }
 
-    GeometricExpression makeSphere(const falg::Vec3& center, float radius) {
-        return GeometricExpression(new Sphere(center, radius));;
+    GeometricExpression makeSphere(float radius) {
+        return GeometricExpression(new Sphere(radius));
     }
 };
