@@ -35,4 +35,15 @@ namespace generelle {
 
         return std::min(c1, c2) - std::pow(std::max(this->k - std::abs(c1 - c2), 0.f), 3) / (6 * this->k * this->k);
     }
+
+
+    /*
+     * GPad member functions
+     */
+
+    GPad::GPad(const IGE& s1, float r) : s1(s1), r(r) { }
+
+    float GPad::signedDist(const falg::Vec3& pos) const {
+        return s1->signedDist(pos) - r;
+    }
 };

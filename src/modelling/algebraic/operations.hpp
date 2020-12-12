@@ -34,4 +34,18 @@ namespace generelle {
 
         virtual float signedDist(const falg::Vec3& pos) const;
     };
+
+
+    /*
+     * GPad - Adds padding to the object with a given radius
+     */
+
+    class GPad : public InnerGeometricExpression {
+        const IGE s1;
+        float r;
+    public:
+        GPad(const IGE& s1, float r);
+
+        virtual float signedDist(const falg::Vec3& pos) const;
+    };
 };

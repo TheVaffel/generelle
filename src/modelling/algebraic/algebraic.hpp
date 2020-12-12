@@ -36,6 +36,8 @@ namespace generelle {
 
         GeometricExpression add(const GeometricExpression& ge) const;
         GeometricExpression smoothAdd(const GeometricExpression& ge, float k = 0.5f) const;
+        GeometricExpression pad(float padding) const;
+        GeometricExpression intersect(const GeometricExpression& ge) const;
     };
     
 };

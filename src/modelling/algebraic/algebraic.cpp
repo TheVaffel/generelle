@@ -52,4 +52,9 @@ namespace generelle {
         return GeometricExpression(ige);
     }
 
+    GE GeometricExpression::pad(float padding) const {
+        IGE ige(new GPad(this->ige, padding));
+        return GeometricExpression(ige);
+    }
+
 };
