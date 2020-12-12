@@ -57,4 +57,15 @@ namespace generelle {
     float GIntersect::signedDist(const falg::Vec3& pos) const {
         return std::max(s1->signedDist(pos), s2->signedDist(pos));
     }
+
+
+    /*
+     * GInverse member functions
+     */
+
+    GInverse::GInverse(const IGE& s1) : s1(s1) { }
+
+    float GInverse::signedDist(const falg::Vec3& pos) const {
+        return - s1->signedDist(pos);
+    }
 };

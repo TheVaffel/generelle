@@ -62,4 +62,14 @@ namespace generelle {
         return GeometricExpression(ige);
     }
 
+    GE GeometricExpression::inverse() const {
+        IGE ige(new GInverse(this->ige));
+        return GeometricExpression(ige);
+    }
+
+    GE GeometricExpression::subtract(const GeometricExpression& ge) const {
+        IGE ige(new GIntersect(this->ige, IGE(new GInverse(ge.ige))));
+        return GeometricExpression(ige);
+    }
+
 };

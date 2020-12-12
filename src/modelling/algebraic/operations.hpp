@@ -61,4 +61,17 @@ namespace generelle {
 
         virtual float signedDist(const falg::Vec3& pos) const;
     };
+
+
+    /*
+     * GInverse - takes the inverse of a model, flipping inside out
+     */
+
+    class GInverse : public InnerGeometricExpression {
+        const IGE s1;
+    public:
+        GInverse(const IGE& s1);
+
+        virtual float signedDist(const falg::Vec3& pos) const;
+    };
 };

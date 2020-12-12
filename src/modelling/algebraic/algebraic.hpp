@@ -9,7 +9,7 @@
 namespace generelle {
 
     /*
-     * InnerGeometricExpression - A base class for 
+     * InnerGeometricExpression - A base class for
      */
 
     class InnerGeometricExpression {
@@ -19,12 +19,12 @@ namespace generelle {
 
         friend class GeometricExpression;
     };
-    
-    
+
+
     /*
      * GeometricExpression - base class for a node in the geometry algebra expression tree
      */
-    
+
     class GeometricExpression {
         std::shared_ptr<InnerGeometricExpression> ige;
     public:
@@ -34,10 +34,13 @@ namespace generelle {
         float signedDist(const falg::Vec3& pos) const;
         falg::Vec3 normal(const falg::Vec3& pos) const;
 
-        GeometricExpression add(const GeometricExpression& ge) const;
-        GeometricExpression smoothAdd(const GeometricExpression& ge, float k = 0.5f) const;
         GeometricExpression pad(float padding) const;
+        GeometricExpression inverse() const;
+
+        GeometricExpression add(const GeometricExpression& ge) const;
+        GeometricExpression subtract(const GeometricExpression& ge) const;
+        GeometricExpression smoothAdd(const GeometricExpression& ge, float k = 0.5f) const;
         GeometricExpression intersect(const GeometricExpression& ge) const;
     };
-    
+
 };
