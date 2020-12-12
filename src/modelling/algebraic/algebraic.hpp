@@ -41,6 +41,9 @@ namespace generelle {
         GeometricExpression subtract(const GeometricExpression& ge) const;
         GeometricExpression smoothAdd(const GeometricExpression& ge, float k = 0.5f) const;
         GeometricExpression intersect(const GeometricExpression& ge) const;
-    };
 
+        GeometricExpression translate(const falg::Vec3& d) const;
+        GeometricExpression scale(const falg::Vec3& scale) const;
+        GeometricExpression scale(float scale) const;
+    };
 };

@@ -7,7 +7,7 @@ namespace generelle {
         falg::Vec3 center;
         float radius;
     public:
-        
+
         Sphere(const falg::Vec3& center, float radius);
 
         virtual float signedDist(const falg::Vec3& pos) const;
