@@ -57,4 +57,9 @@ namespace generelle {
         return GeometricExpression(ige);
     }
 
+    GE GeometricExpression::intersect(const GeometricExpression& ge) const {
+        IGE ige(new GIntersect(this->ige, ge.ige));
+        return GeometricExpression(ige);
+    }
+
 };

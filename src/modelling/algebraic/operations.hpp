@@ -48,4 +48,17 @@ namespace generelle {
 
         virtual float signedDist(const falg::Vec3& pos) const;
     };
+
+
+    /*
+     * GIntersect - intersects two models
+     */
+
+    class GIntersect : public InnerGeometricExpression {
+        const IGE s1, s2;
+    public:
+        GIntersect(const IGE& s1, const IGE& s2);
+
+        virtual float signedDist(const falg::Vec3& pos) const;
+    };
 };
