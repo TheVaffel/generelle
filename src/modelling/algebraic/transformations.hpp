@@ -28,6 +28,7 @@ namespace generelle {
         const IGE s1;
         falg::Vec3 inv_scale;
         float scale_norm;
+
     public:
         GNonUniformScale(const IGE& s1, const falg::Vec3& scale);
 
@@ -41,7 +42,7 @@ namespace generelle {
 
     class GUniformScale : public InnerGeometricExpression {
         const IGE s1;
-        float scale, inv_scale;
+        float inv_scale, scale;
     public:
         GUniformScale(const IGE& s1, float scale);
 
