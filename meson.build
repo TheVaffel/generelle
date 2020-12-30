@@ -9,7 +9,7 @@ endif
 
 src_files = ['src/visualization/visualization.cpp',
          'src/modelling/algebraic/algebraic.cpp',
-         # 'src/modelling/algebraic/mesh_constructor.cpp',
+         'src/modelling/algebraic/mesh_constructor.cpp',
          'src/modelling/algebraic/operations.cpp',
          'src/modelling/algebraic/transformations.cpp',
          'src/modelling/algebraic/shapes.cpp']
