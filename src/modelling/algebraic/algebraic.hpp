@@ -17,6 +17,8 @@ namespace generelle {
         virtual float signedDist(const falg::Vec3& pos) const = 0;
         virtual falg::Vec3 normal(const falg::Vec3& pos) const;
 
+        virtual ~InnerGeometricExpression() = 0;
+
         friend class GeometricExpression;
     };
 

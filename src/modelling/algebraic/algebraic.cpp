@@ -22,6 +22,8 @@ namespace generelle {
         return v.normalized();
     }
 
+    InnerGeometricExpression::~InnerGeometricExpression() { }
+
 
     /*
      * GeometricExpression member functions
