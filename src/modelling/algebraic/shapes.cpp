@@ -13,19 +13,10 @@ namespace generelle {
         float ady = std::abs(pos.y()) - std::abs(span.y());
         float adz = std::abs(pos.z()) - std::abs(span.z());
 
-        float dx = std::max(adx, 0.0f);
-        float dy = std::max(ady, 0.0f);
-        float dz = std::max(adz, 0.0f);
+        float dd = sqrt(adx * adx + ady * ady + adz * adz);
+        float di = std::max(std::max(adx, ady), adz);
 
-        float dd = sqrt(dx * dx + dy * dy + dz * dz);
-
-        float idx = std::min(adx, 0.0f);
-        float idy = std::min(ady, 0.0f);
-        float idz = std::min(adz, 0.0f);
-
-        float di = std::max(std::max(idx, idy), idz);
-
-        return dd < 0 ? di : dd;
+        return std::min(di, dd);
     }
 
 
