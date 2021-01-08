@@ -14,6 +14,7 @@ namespace generelle {
     };
 
     namespace MeshConstructor {
+        void deduplicateMapPoints(const std::vector<falg::Vec3>& vertices, std::vector<int>& indexMap, float closest_distance);
         Mesh constructMesh(const GeometricExpression& ge,
                            float target_resolution = 0.1f,
                            float start_span = 1e8,

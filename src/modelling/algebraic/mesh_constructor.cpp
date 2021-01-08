@@ -1,6 +1,8 @@
 #include "mesh_constructor.hpp"
 #include "marching_cube_info.hpp"
 
+#include <HGraf.hpp>
+
 namespace generelle {
 
     /*
@@ -20,6 +22,7 @@ namespace generelle {
         const float sqrt3_ceil = sqrt(3) + 1.01f;
         const float target_span = 0.1f;
         const float epsilon = 1e-5;
+        const float vertex_epsilon = 1e-3;
 
 
         falg::Vec3 lerpVertex(float val0, float val1, const falg::Vec3& v0, const falg::Vec3& v1) {
@@ -28,11 +31,20 @@ namespace generelle {
             }
 
             float mu = ( - val0) / (val1 - val0);
+
+            if (mu < vertex_epsilon) {
+                return v0;
+            } else if (mu > 1 - vertex_epsilon) {
+                return v1;
+            }
+
             return v0 + (v1 - v0) * mu;
         }
 
         // Assumes minBounds and maxBounds contain cubes
-        void marchingCubes(const GeometricExpression& ge, Mesh* mesh, float target_span, float span, const falg::Vec3& mid) {
+        void marchingCubes(const GeometricExpression& ge,
+                           std::vector<falg::Vec3>& vertices,
+                           float target_span, float span, const falg::Vec3& mid) {
             float dist = ge.signedDist(mid);
 
             if (std::abs(dist) > span * sqrt3_ceil) {
@@ -46,7 +58,7 @@ namespace generelle {
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
                         for (int k = 0; k < 2; k++) {
-                            marchingCubes(ge, mesh, target_span, nspan,
+                            marchingCubes(ge, vertices, target_span, nspan,
                                           mid + falg::Vec3((2 * i - 1) * nspan,
                                                            (2 * j - 1) * nspan,
                                                            (2 * k - 1) * nspan));
@@ -91,8 +103,6 @@ namespace generelle {
                 }
             }
 
-            int vert_offset = mesh->getNumVertices();
-
             const int *tri = marching_cubes_info::triangleIndices[corns];
 
             for (int i = 0; tri[i] != -1; i += 3) {
@@ -101,27 +111,77 @@ namespace generelle {
                 falg::Vec3 v1 = edgeVerts[tri[i + 1]];
                 falg::Vec3 v2 = edgeVerts[tri[i + 2]];
 
-                mesh->positions.push_back(v0);
-                mesh->positions.push_back(v1);
-                mesh->positions.push_back(v2);
+                vertices.push_back(v0);
+                vertices.push_back(v2);
+                vertices.push_back(v1);
+            }
+        }
 
-                mesh->normals.push_back(ge.normal(v0));
-                mesh->normals.push_back(ge.normal(v1));
-                mesh->normals.push_back(ge.normal(v2));
+        // On return, for every vertex, indexMap gives the index of the first vertex in the list that is sufficiently close to this one
+        void deduplicateMapPoints(const std::vector<falg::Vec3>& vertices, std::vector<int>& indexMap, float closest_distance) {
 
-                mesh->indices.push_back(vert_offset + i + 0);
-                mesh->indices.push_back(vert_offset + i + 2);
-                mesh->indices.push_back(vert_offset + i + 1);
+            indexMap = std::vector<int>(vertices.size(), -1);
 
+            struct VertInd {
+                falg::Vec3 vertex;
+                unsigned int index;
+
+                falg::Vec3 getPosition() const {
+                    return vertex;
+                }
+            };
+
+            std::vector<VertInd> vertInds;
+
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                vertInds.push_back(VertInd { vertices[i], i });
             }
 
+            // Using a BVH to find close points fast
+            std::shared_ptr<const hg::BVH<VertInd>> boundingVolumeHierarchy =
+                hg::BVH<VertInd>::createBVH(vertInds.data(), vertInds.size());
+
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                std::vector<VertInd> foundVertInds;
+                boundingVolumeHierarchy->getWithin(vertices[i], closest_distance, foundVertInds);
+                for (unsigned int j = 0; j < foundVertInds.size(); j++) {
+
+                    if (indexMap[foundVertInds[j].index] < 0) {
+                        indexMap[foundVertInds[j].index] = i;
+                    }
+                }
+            }
         }
 
 
         Mesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid) {
-            Mesh mesh;
 
-            marchingCubes(ge, &mesh, target_resolution / 2, span, mid);
+            std::vector<falg::Vec3> temp_positions;
+            marchingCubes(ge,
+                          temp_positions,
+                          target_resolution / 2, span, mid);
+
+
+            std::vector<int> indMap;
+            deduplicateMapPoints(temp_positions, indMap, 1e-4);
+
+            // Yet another map, to map indices in the original vertex list
+            // to indices in this reduced vertex list
+            std::vector<int> newMap(indMap.size());
+
+            Mesh mesh;
+            for (unsigned int i = 0; i < temp_positions.size(); i++) {
+                if (indMap[i] == (int)i) {
+                    mesh.indices.push_back(mesh.positions.size());
+                    newMap[indMap[i]] = mesh.positions.size();
+
+                    mesh.positions.push_back(temp_positions[i]);
+                    mesh.normals.push_back(ge.normal(temp_positions[i]));
+                } else {
+                    mesh.indices.push_back(newMap[indMap[i]]);
+                }
+            }
+
             return mesh;
         }
     };

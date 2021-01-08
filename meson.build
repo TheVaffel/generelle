@@ -2,7 +2,7 @@ project('generelle', 'cpp',
         default_options : ['cpp_std=c++1z'])
 
 if host_machine.system() == 'linux'
-  add_global_arguments('-mavx', '-std=c++1z', language: 'cpp')
+  add_global_arguments('-mavx', '-std=c++2a', '-fconcepts', language: 'cpp')
 else
   add_global_arguments('/arch:AVX2', language: 'cpp')
 endif
