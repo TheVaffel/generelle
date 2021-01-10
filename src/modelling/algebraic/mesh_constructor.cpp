@@ -5,19 +5,6 @@
 
 namespace generelle {
 
-    /*
-     * Mesh member functions
-     */
-
-    int Mesh::getNumIndices() const {
-        return this->indices.size();
-    }
-
-    int Mesh::getNumVertices() const {
-        return this->positions.size();
-    }
-
-
     namespace MeshConstructor {
         const float sqrt3_ceil = sqrt(3) + 1.01f;
         const float target_span = 0.1f;
@@ -145,7 +132,6 @@ namespace generelle {
                 std::vector<VertInd> foundVertInds;
                 boundingVolumeHierarchy->getWithin(vertices[i], closest_distance, foundVertInds);
                 for (unsigned int j = 0; j < foundVertInds.size(); j++) {
-
                     if (indexMap[foundVertInds[j].index] < 0) {
                         indexMap[foundVertInds[j].index] = i;
                     }
@@ -154,7 +140,7 @@ namespace generelle {
         }
 
 
-        Mesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid) {
+        hg::NormalMesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid) {
 
             std::vector<falg::Vec3> temp_positions;
             marchingCubes(ge,
@@ -163,13 +149,13 @@ namespace generelle {
 
 
             std::vector<int> indMap;
-            deduplicateMapPoints(temp_positions, indMap, 1e-4);
+            deduplicateMapPoints(temp_positions, indMap, 1e-6);
 
             // Yet another map, to map indices in the original vertex list
             // to indices in this reduced vertex list
             std::vector<int> newMap(indMap.size());
 
-            Mesh mesh;
+            hg::NormalMesh mesh;
             for (unsigned int i = 0; i < temp_positions.size(); i++) {
                 if (indMap[i] == (int)i) {
                     mesh.indices.push_back(mesh.positions.size());
@@ -181,6 +167,9 @@ namespace generelle {
                     mesh.indices.push_back(newMap[indMap[i]]);
                 }
             }
+
+
+            hg::HalfEdgeMesh hem(mesh);
 
             return mesh;
         }

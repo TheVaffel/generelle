@@ -21,9 +21,10 @@ hconlib_root = '/home/haakon/Documents/Code/C++/HConLib'
 hconlib_include = include_directories(hconlib_root / 'include')
 
 flatalg_lib = comp.find_library('FlatAlg', dirs: hconlib_root / 'lib')
+hgraf_lib = comp.find_library('HGraf', dirs: hconlib_root / 'lib')
 oiio_lib = comp.find_library('OpenImageIO')
 
 gn_lib = library('generelle', src_files, include_directories: hconlib_include,
-                 dependencies: [flatalg_lib], install: true, install_dir: meson.source_root() / 'lib')
+                 dependencies: [flatalg_lib, hgraf_lib], install: true, install_dir: meson.source_root() / 'lib')
 
-executable('example', 'examples' / 'test.cpp', dependencies : [flatalg_lib, oiio_lib], link_with: gn_lib, include_directories: [hconlib_include, 'include'])
+executable('example', 'examples' / 'test.cpp', dependencies : [flatalg_lib, hgraf_lib, oiio_lib], link_with: gn_lib, include_directories: [hconlib_include, 'include'])
