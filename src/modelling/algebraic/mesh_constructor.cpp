@@ -169,6 +169,26 @@ namespace generelle {
             }
 
 
+            // Remove degenerate triangles (where two indices are the same)
+            int num_removed = 0;
+            for (unsigned int i = 0; i < mesh.indices.size() - 3 * num_removed; i++) {
+                int tbase = (i / 3) * 3;
+                int nextInd = ((i - tbase) + 1) % 3 + tbase;
+
+                if (mesh.indices[i] == mesh.indices[nextInd]) {
+                    // If degenerate, replace with last triangle in list that has not already been used as replacement
+                    for (int j = 0; j < 3; j++) {
+                        mesh.indices[tbase + j] = mesh.indices[mesh.indices.size() - 3 * (num_removed + 1) + j];
+                    }
+                    num_removed++;
+
+                    // Re-evaluate this triangle
+                    i = tbase;
+                }
+            }
+
+            mesh.indices.resize(mesh.indices.size() - 3 * num_removed);
+
             hg::HalfEdgeMesh hem(mesh);
 
             return mesh;
