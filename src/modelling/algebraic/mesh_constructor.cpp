@@ -186,13 +186,9 @@ namespace generelle {
                 float normdot = falg::dot(normal0, normal1);
                 const float cosdot = cosf(M_PI / 4);
 
-                // std::cout << "Normdot = " << normdot << ", cosdot = " << cosdot << std::endl;
-
                 // Assume length of normals are 1
                 // If the normals do not align well...
                 if (normdot < cosdot) {
-                    std::cout << "Gone inner" << std::endl;
-
                     // Pick middle point
                     falg::Vec3 middle_point = (pos0 + pos1) / 2;
 
@@ -226,7 +222,6 @@ namespace generelle {
                         new_normal = ge.normal(middle_point);
                         middle_point -= dist * new_normal;
                     } else {
-                        std::cout << "Continued" << std::endl;
                         continue;
                     }
 
@@ -238,8 +233,6 @@ namespace generelle {
                     split_edges++;
                 }
             }
-
-            std::cout << "Split edges = " << split_edges << std::endl;
         }
 
         hg::NormalMesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid) {
