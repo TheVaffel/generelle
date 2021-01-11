@@ -140,6 +140,108 @@ namespace generelle {
         }
 
 
+        // Remove all triangles s.t. at least two of the corners in the triangle refers to the same vertex (by index)
+        // NB: Does not preserve triangle order
+        void removeDegenerateTriangles(Mesh& mesh) {
+
+            // Remove degenerate triangles (where two indices are the same)
+            int num_removed = 0;
+            for (unsigned int i = 0; i < mesh.indices.size() - 3 * num_removed; i++) {
+                int tbase = (i / 3) * 3;
+                int nextInd = ((i - tbase) + 1) % 3 + tbase;
+
+                if (mesh.indices[i] == mesh.indices[nextInd]) {
+                    // If degenerate, replace with last triangle in list that has not already been used as replacement
+                    for (int j = 0; j < 3; j++) {
+                        mesh.indices[tbase + j] = mesh.indices[mesh.indices.size() - 3 * (num_removed + 1) + j];
+                    }
+                    num_removed++;
+
+                    // Re-evaluate this triangle
+                    i = tbase;
+                }
+            }
+
+            mesh.indices.resize(mesh.indices.size() - 3 * num_removed);
+        }
+
+
+        /*
+         * rectifyMesh - In order to fit the mesh better to corners in the shape it is supposed to represent,
+         * we will create vertices closer to those corners in the mesh
+         */
+        void rectifyMesh(const GeometricExpression& ge, Mesh& original_mesh, hg::HalfEdgeMesh& hem) {
+            int split_edges = 0;
+
+            unsigned int num_edges = hem.getSize();
+
+            for (unsigned int i = 0; i < num_edges; i++) {
+                hg::HalfEdge& edge = *hem.getData()[i];
+                falg::Vec3 pos0 = original_mesh.positions[edge.start_index];
+                falg::Vec3 pos1 = original_mesh.positions[edge.end_index];
+
+                falg::Vec3 normal0 = original_mesh.normals[edge.start_index];
+                falg::Vec3 normal1 = original_mesh.normals[edge.end_index];
+
+                float normdot = falg::dot(normal0, normal1);
+                const float cosdot = cosf(M_PI / 4);
+
+                // std::cout << "Normdot = " << normdot << ", cosdot = " << cosdot << std::endl;
+
+                // Assume length of normals are 1
+                // If the normals do not align well...
+                if (normdot < cosdot) {
+                    std::cout << "Gone inner" << std::endl;
+
+                    // Pick middle point
+                    falg::Vec3 middle_point = (pos0 + pos1) / 2;
+
+                    falg::Vec3 interp_normal = (normal0 + normal1).normalized();
+                    falg::Vec3 new_normal;
+
+                    falg::Vec3 dir = pos1 - pos0;
+                    // If the two normals point away from the other vertex ...
+                    if (falg::dot(dir, normal0) < 0 && falg::dot(dir, normal1) > 0) {
+                        float dist = ge.signedDist(middle_point);
+                        int a = 0;
+                        while (dist < 0.0f && a < 4) {
+                            middle_point -= dist * 1.5 * interp_normal;
+                            dist = ge.signedDist(middle_point);
+                            a++;
+                        }
+
+                        new_normal = ge.normal(middle_point);
+                        middle_point -= dist * new_normal;
+
+                        // Else, if normals point towards the other vertex
+                    } else if (falg::dot(dir, normal0) > 0 && falg::dot(dir, normal1) < 0) {
+                        float dist = ge.signedDist(middle_point);
+                        int a = 0;
+                        while (dist > 0.0f && a < 4) {
+                            middle_point -= dist * 1.5 * interp_normal;
+                            dist = ge.signedDist(middle_point);
+                            a++;
+                        }
+
+                        new_normal = ge.normal(middle_point);
+                        middle_point -= dist * new_normal;
+                    } else {
+                        std::cout << "Continued" << std::endl;
+                        continue;
+                    }
+
+                    int this_ind = original_mesh.positions.size();
+                    original_mesh.positions.push_back(middle_point);
+                    original_mesh.normals.push_back(new_normal);
+
+                    hem.splitEdge(&edge, this_ind);
+                    split_edges++;
+                }
+            }
+
+            std::cout << "Split edges = " << split_edges << std::endl;
+        }
+
         hg::NormalMesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid) {
 
             std::vector<falg::Vec3> temp_positions;
@@ -168,28 +270,10 @@ namespace generelle {
                 }
             }
 
-
-            // Remove degenerate triangles (where two indices are the same)
-            int num_removed = 0;
-            for (unsigned int i = 0; i < mesh.indices.size() - 3 * num_removed; i++) {
-                int tbase = (i / 3) * 3;
-                int nextInd = ((i - tbase) + 1) % 3 + tbase;
-
-                if (mesh.indices[i] == mesh.indices[nextInd]) {
-                    // If degenerate, replace with last triangle in list that has not already been used as replacement
-                    for (int j = 0; j < 3; j++) {
-                        mesh.indices[tbase + j] = mesh.indices[mesh.indices.size() - 3 * (num_removed + 1) + j];
-                    }
-                    num_removed++;
-
-                    // Re-evaluate this triangle
-                    i = tbase;
-                }
-            }
-
-            mesh.indices.resize(mesh.indices.size() - 3 * num_removed);
+            removeDegenerateTriangles(mesh);
 
             hg::HalfEdgeMesh hem(mesh);
+            rectifyMesh(ge, mesh, hem);
 
             return mesh;
         }
