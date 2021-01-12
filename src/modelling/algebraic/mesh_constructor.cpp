@@ -272,6 +272,7 @@ namespace generelle {
 
             hg::HalfEdgeMesh hem(mesh);
             rectifyMesh(ge, mesh, hem);
+            hem.constructIndices(mesh.indices);
 
             return mesh;
         }
