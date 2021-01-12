@@ -129,6 +129,11 @@ namespace generelle {
                 hg::BVH<VertInd>::createBVH(vertInds.data(), vertInds.size());
 
             for (unsigned int i = 0; i < vertices.size(); i++) {
+                if (indexMap[i] > 0) {
+                    // This vertex has already been mapped to another vertex. Don't merge neighbor points to this
+                    continue;
+                }
+
                 std::vector<VertInd> foundVertInds;
                 boundingVolumeHierarchy->getWithin(vertices[i], closest_distance, foundVertInds);
                 for (unsigned int j = 0; j < foundVertInds.size(); j++) {
