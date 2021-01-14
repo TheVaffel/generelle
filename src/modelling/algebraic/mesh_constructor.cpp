@@ -189,44 +189,81 @@ namespace generelle {
                 falg::Vec3 normal1 = original_mesh.normals[edge.end_index];
 
                 float normdot = falg::dot(normal0, normal1);
+
+                // Vertices with higher angle between normals are chosen for edge-split
                 const float cosdot = cosf(M_PI / 4);
 
                 // Assume length of normals are 1
                 // If the normals do not align well...
                 if (normdot < cosdot) {
-                    // Pick middle point
-                    falg::Vec3 middle_point = (pos0 + pos1) / 2;
 
-                    falg::Vec3 interp_normal = (normal0 + normal1).normalized();
-                    falg::Vec3 new_normal;
 
-                    falg::Vec3 dir = pos1 - pos0;
-                    // If the two normals point away from the other vertex ...
-                    if (falg::dot(dir, normal0) < 0 && falg::dot(dir, normal1) > 0) {
-                        float dist = ge.signedDist(middle_point);
-                        int a = 0;
-                        while (dist < 0.0f && a < 4) {
-                            middle_point -= dist * 1.5 * interp_normal;
-                            dist = ge.signedDist(middle_point);
-                            a++;
+                    // If found vertex has normal with angle within this from any of the two start points,
+                    // continue looking for new point (we'll try binary search)
+                    const float mindot = cosf(M_PI / 16);
+                    bool found_new_vertex = false;
+
+                    const int max_search_iterations = 4;
+                    int search_iterations = 0;
+
+                    // Binary search range
+                    float high_frac = 1.0f,
+                        low_frac = 0.0f;
+
+                    falg::Vec3 middle_point, new_normal;
+
+                    while (!found_new_vertex && search_iterations < max_search_iterations) {
+                        search_iterations++;
+
+                        // Pick middle point
+                        float middle_frac = (high_frac + low_frac) / 2.0f;
+                        middle_point = (1 - middle_frac) * pos0 + middle_frac * pos1;
+
+                        falg::Vec3 interp_normal = (normal0 + normal1).normalized();
+
+                        falg::Vec3 dir = pos1 - pos0;
+                        // If the two normals point away from the other vertex ...
+                        if (falg::dot(dir, normal0) < 0 && falg::dot(dir, normal1) > 0) {
+                            float dist = ge.signedDist(middle_point);
+                            int a = 0;
+                            while (dist < 0.0f && a < 4) {
+                                middle_point -= dist * 1.5 * interp_normal;
+                                dist = ge.signedDist(middle_point);
+                                a++;
+                            }
+
+                            new_normal = ge.normal(middle_point);
+                            middle_point -= dist * new_normal;
+
+                            // Else, if normals point towards the other vertex
+                        } else if (falg::dot(dir, normal0) > 0 && falg::dot(dir, normal1) < 0) {
+                            float dist = ge.signedDist(middle_point);
+                            int a = 0;
+                            while (dist > 0.0f && a < 4) {
+                                middle_point -= dist * 1.5 * interp_normal;
+                                dist = ge.signedDist(middle_point);
+                                a++;
+                            }
+
+                            new_normal = ge.normal(middle_point);
+                            middle_point -= dist * new_normal;
+                        } else {
+                            // Don't really know what to do when original normals point in the same direction, just skip
+                            break;
                         }
 
-                        new_normal = ge.normal(middle_point);
-                        middle_point -= dist * new_normal;
-
-                        // Else, if normals point towards the other vertex
-                    } else if (falg::dot(dir, normal0) > 0 && falg::dot(dir, normal1) < 0) {
-                        float dist = ge.signedDist(middle_point);
-                        int a = 0;
-                        while (dist > 0.0f && a < 4) {
-                            middle_point -= dist * 1.5 * interp_normal;
-                            dist = ge.signedDist(middle_point);
-                            a++;
+                        // Check if found a new, sufficiently distinct normal
+                        if (falg::dot(new_normal, normal0) > mindot) {
+                            low_frac = (high_frac + low_frac) / 2.0f;
+                        } else if (falg::dot(new_normal, normal1) > mindot) {
+                            high_frac = (high_frac + low_frac) / 2.0f;
+                        } else {
+                            // If normal sufficiently different from originals, mark as found
+                            found_new_vertex = true;
                         }
+                    }
 
-                        new_normal = ge.normal(middle_point);
-                        middle_point -= dist * new_normal;
-                    } else {
+                    if (!found_new_vertex) {
                         continue;
                     }
 
