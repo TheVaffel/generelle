@@ -12,7 +12,8 @@ namespace generelle {
         hg::NormalMesh constructMesh(const GeometricExpression& ge,
                                      float target_resolution = 0.1f,
                                      float start_span = 1e8,
-                                     const falg::Vec3& mid = falg::Vec3(0.0f, 0.0f, 0.0f));
+                                     const falg::Vec3& mid = falg::Vec3(0.0f, 0.0f, 0.0f),
+                                     bool postProcessMesh = true);
     };
 
     typedef hg::NormalMesh Mesh;
