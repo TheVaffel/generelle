@@ -312,7 +312,7 @@ namespace generelle {
 
 
             std::vector<int> indMap;
-            deduplicateMapPoints(temp_positions, indMap, 1e-6);
+            deduplicateMapPoints(temp_positions, indMap, 1e-3);
 
             // Yet another map, to map indices in the original vertex list
             // to indices in this reduced vertex list
@@ -334,9 +334,12 @@ namespace generelle {
             removeDegenerateTriangles(mesh);
 
             if (postProcessMesh) {
+                reprojectMesh(ge, mesh);
                 hg::HalfEdgeMesh hem(mesh);
                 rectifyMesh(ge, mesh, hem);
-                hem.constructIndices(mesh.indices);
+                // simplifyMesh(mesh, hem);
+                // hem.constructIndices(mesh.indices);
+                hem.reconstructMesh(mesh);
             }
 
             return mesh;
