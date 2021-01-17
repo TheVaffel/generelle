@@ -207,7 +207,6 @@ namespace generelle {
                 // If the normals do not align well...
                 if (normdot < cosdot) {
 
-
                     // If found vertex has normal with angle within this from any of the two start points,
                     // continue looking for new point (we'll try binary search)
                     const float mindot = cosf(M_PI / 16);
@@ -232,35 +231,32 @@ namespace generelle {
                         falg::Vec3 interp_normal = (normal0 + normal1).normalized();
 
                         falg::Vec3 dir = pos1 - pos0;
+                        float length = dir.norm();
+
+                        float factor;
+
                         // If the two normals point away from the other vertex ...
                         if (falg::dot(dir, normal0) < 0 && falg::dot(dir, normal1) > 0) {
-                            float dist = ge.signedDist(middle_point);
-                            int a = 0;
-                            while (dist < 0.0f && a < 4) {
-                                middle_point -= dist * 1.5 * interp_normal;
-                                dist = ge.signedDist(middle_point);
-                                a++;
-                            }
-
-                            new_normal = ge.normal(middle_point);
-                            middle_point -= dist * new_normal;
-
-                            // Else, if normals point towards the other vertex
+                            factor = -1.0f;
                         } else if (falg::dot(dir, normal0) > 0 && falg::dot(dir, normal1) < 0) {
-                            float dist = ge.signedDist(middle_point);
-                            int a = 0;
-                            while (dist > 0.0f && a < 4) {
-                                middle_point -= dist * 1.5 * interp_normal;
-                                dist = ge.signedDist(middle_point);
-                                a++;
-                            }
-
-                            new_normal = ge.normal(middle_point);
-                            middle_point -= dist * new_normal;
+                            factor = 1.0f;
                         } else {
                             // Don't really know what to do when original normals point in the same direction, just skip
                             break;
+
                         }
+
+                        float padded_dist = ge.signedDist(middle_point) + factor * length / 4;
+                        int a = 0;
+                        while (factor * padded_dist > 0 && a < 4) {
+                            middle_point -= padded_dist * 1.5 * interp_normal;
+                            padded_dist = ge.signedDist(middle_point) + factor * length / 4;
+                            a++;
+                        }
+
+                        new_normal = ge.normal(middle_point);
+                        float new_dist = padded_dist - factor *  length / 4;
+                        middle_point -= new_dist * new_normal;
 
                         // Check if found a new, sufficiently distinct normal
                         if (falg::dot(new_normal, normal0) > mindot) {
@@ -283,6 +279,25 @@ namespace generelle {
 
                     hem.splitEdge(&edge, this_ind);
                     split_edges++;
+
+                }
+            }
+        }
+
+        void simplifyMesh(Mesh& original_mesh, hg::HalfEdgeMesh& hem) {
+            for (unsigned int i = 0; i < hem.getSize(); i++) {
+                hg::HalfEdge* edge =  hem.getData()[i];
+                int v0 = edge->start_index;
+                int v1 = edge->end_index;
+
+                falg::Vec3 norm0 = original_mesh.normals[v0];
+                falg::Vec3 norm1 = original_mesh.normals[v1];
+
+                if ((norm0 - norm1).sqNorm() < 1e-10) {
+                    hem.mergeEdge(edge);
+                    original_mesh.positions[v0] = (original_mesh.positions[v0] + original_mesh.positions[v1]) / 2;
+                    // We leave the deleted position in the mesh, delete on reconstruction
+                    // Normals will be the same as before
                 }
             }
         }
