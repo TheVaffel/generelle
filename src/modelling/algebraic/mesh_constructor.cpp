@@ -170,6 +170,16 @@ namespace generelle {
             mesh.indices.resize(mesh.indices.size() - 3 * num_removed);
         }
 
+        /*
+         * reprojectMesh - make sure each vertex on the surface lies on the GE boundary (e.g. signedDist = 0)
+         */
+        void reprojectMesh(const GeometricExpression& ge, Mesh& original_mesh) {
+            for (unsigned int i = 0; i < original_mesh.positions.size(); i++) {
+                float dist = ge.signedDist(original_mesh.positions[i]);
+                original_mesh.positions[i] -= original_mesh.normals[i] * dist;
+            }
+        }
+
 
         /*
          * rectifyMesh - In order to fit the mesh better to corners in the shape it is supposed to represent,
