@@ -284,7 +284,9 @@ namespace generelle {
             }
         }
 
-        void simplifyMesh(Mesh& original_mesh, hg::HalfEdgeMesh& hem) {
+        void simplifyMesh(Mesh& original_mesh, hg::HalfEdgeMesh& hem, float max_len) {
+            float mls = max_len * max_len;
+
             for (unsigned int i = 0; i < hem.getSize(); i++) {
                 hg::HalfEdge* edge =  hem.getData()[i];
                 int v0 = edge->start_index;
@@ -292,8 +294,12 @@ namespace generelle {
 
                 falg::Vec3 norm0 = original_mesh.normals[v0];
                 falg::Vec3 norm1 = original_mesh.normals[v1];
+                falg::Vec3 pdiff = original_mesh.positions[v1] - original_mesh.positions[v0];
+                float ddot = falg::dot(norm0, pdiff);
 
-                if ((norm0 - norm1).sqNorm() < 1e-10) {
+                float lk = std::abs(ddot / pdiff.norm());
+
+                if ((norm0 - norm1).sqNorm() < 1e-10 && lk < 1e-7 && pdiff.sqNorm() < mls) {
                     hem.mergeEdge(edge);
                     original_mesh.positions[v0] = (original_mesh.positions[v0] + original_mesh.positions[v1]) / 2;
                     // We leave the deleted position in the mesh, delete on reconstruction
