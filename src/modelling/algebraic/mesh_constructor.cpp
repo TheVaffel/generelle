@@ -309,7 +309,7 @@ namespace generelle {
         }
 
         hg::NormalMesh constructMesh(const GeometricExpression& ge, float target_resolution, float span, const falg::Vec3& mid,
-                                     bool postProcessMesh) {
+                                     const ConstructMeshSetup& setup) {
 
             std::vector<falg::Vec3> temp_positions;
             marchingCubes(ge,
@@ -339,14 +339,18 @@ namespace generelle {
 
             removeDegenerateTriangles(mesh);
 
-            if (postProcessMesh) {
-                reprojectMesh(ge, mesh);
-                hg::HalfEdgeMesh hem(mesh);
+
+            reprojectMesh(ge, mesh);
+            hg::HalfEdgeMesh hem(mesh);
+            for (int i = 0; i < setup.numRectify; i++) {
                 rectifyMesh(ge, mesh, hem);
-                // simplifyMesh(mesh, hem);
-                // hem.constructIndices(mesh.indices);
-                hem.reconstructMesh(mesh);
             }
+
+            if (setup.includeSimplify) {
+                simplifyMesh(mesh, hem, target_resolution * 2);
+            }
+
+            hem.reconstructMesh(mesh);
 
             return mesh;
         }
