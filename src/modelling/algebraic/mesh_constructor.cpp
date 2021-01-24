@@ -275,7 +275,7 @@ namespace generelle {
 
                     int this_ind = original_mesh.positions.size();
                     original_mesh.positions.push_back(middle_point);
-                    original_mesh.normals.push_back(new_normal);
+                    original_mesh.normals.push_back(ge.normal(middle_point));
 
                     hem.splitEdge(&edge, this_ind);
                     split_edges++;
