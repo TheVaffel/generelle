@@ -1,18 +1,19 @@
 project('generelle', 'cpp',
-        default_options : ['cpp_std=c++1z'])
+        default_options : ['cpp_std=gnu++1z'])
 
 if host_machine.system() == 'linux'
-  add_global_arguments('-mavx', '-std=c++2a', '-fconcepts', language: 'cpp')
+  add_global_arguments('-mavx', '-std=c++2a', language: 'cpp')
 else
   add_global_arguments('/arch:AVX2', language: 'cpp')
 endif
 
 src_files = ['src/visualization/visualization.cpp',
-         'src/modelling/algebraic/algebraic.cpp',
-         'src/modelling/algebraic/mesh_constructor.cpp',
-         'src/modelling/algebraic/operations.cpp',
-         'src/modelling/algebraic/transformations.cpp',
-         'src/modelling/algebraic/shapes.cpp']
+             'src/modelling/algebraic/algebraic.cpp',
+             'src/modelling/algebraic/mesh_constructor.cpp',
+	     'src/modelling/algebraic/marching_cubes.cpp',
+             'src/modelling/algebraic/operations.cpp',
+             'src/modelling/algebraic/transformations.cpp',
+             'src/modelling/algebraic/shapes.cpp']
 
 comp = meson.get_compiler('cpp')
 
