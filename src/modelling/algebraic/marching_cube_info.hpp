@@ -1,3 +1,4 @@
+
 /*
  * Auxillary tables for cube marching
  * These tables were taken from ttps://github.com/Magnus2/MeshReconstruction
@@ -7,7 +8,7 @@
 
 
 namespace generelle {
-    namespace marching_cubes_info {
+    namespace MarchingCubesInfo {
         const int edgeBitmasks[256] = {
             0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
             0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -321,7 +322,7 @@ namespace generelle {
             { 256, 0, 4 },
             { 512, 1, 5 },
             { 1024, 2, 6 },
-            { 2048, 3, 7 } // edge 11
+            { -2048, 3, 7 } // edge 11, negative to please compiler (bit pattern is same)
         };
     };
 };
